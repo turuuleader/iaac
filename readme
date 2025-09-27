@@ -1,0 +1,3 @@
+sudo yum install -y git
+kubectl apply -k https://github.com/turuuleader/iaac.git
+kubectl apply -f https://raw.githubusercontent.com/turuuleader/iaac/master/iaac-web.yaml
