@@ -37,17 +37,15 @@ spec:
               value: tmon-vehicle
             - name: ServiceConfig__serviceId
               value: "1"
-        resources:
-          limits:
-            cpu: "2"
-            memory: 2Gi
-          requests:
-            cpu: 500m
-            memory: 512Mi
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-      imagePullSecrets:
-      - name: regcred
+          resources:
+            limits:
+              cpu: "2"
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 512Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
