@@ -1,0 +1,7 @@
+resources:
+  - apigateway.yaml
+  - dw-auth-service.yaml
+  - iaac-contract.yaml
+  - iaac-service.yaml
+  - iaacweb.yaml
+  - ingress-iaac.yaml
