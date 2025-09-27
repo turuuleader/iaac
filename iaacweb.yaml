@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iaacweb
+  namespace: default
+  labels:
+    io.kompose.service: iaacweb
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      io.kompose.service: iaacweb
+  template:
+    metadata:
+      labels:
+        io.kompose.service: iaacweb
+        io.kompose.network/dw-network: "true"
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: iaacweb
+          image: bljnnm/iaacweb:20250428.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ServiceConfig__serviceDiscoveryAddress
+              value: http://consul:8500
+            - name: ServiceConfig__serviceAddress
+              value: http://iaacweb:8080
+            - name: ServiceConfig__serviceName
+              value: tmon-vehicle
+            - name: ServiceConfig__serviceId
+              value: "1
