@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dw-auth-service
+  namespace: default
+  labels:
+    io.kompose.service: dw-auth-service
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      io.kompose.service: dw-auth-service
+  template:
+    metadata:
+      labels:
+        io.kompose.service: dw-auth-service
+        io.kompose.network/dw-network: "true"
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: dw-auth-service
+          image: bljnnm/iaac-auth:20250428.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: ServiceConfig__serviceDiscoveryAddress
+              value: http://consul:8500
+            - name: ServiceConfig__serviceAddress
+              value: http://dw-auth-service:8080
+            - name: ServiceConfig__serviceName
+              value: dw-auth-service
+            - name: ServiceConfig__serviceId
+              value: "1"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dw-auth-service
+  namespace: default
+  labels:
+    io.kompose.service: dw-auth-service
+spec:
+  type: ClusterIP
+  selector:
+    io.kompose.service: dw-auth-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
