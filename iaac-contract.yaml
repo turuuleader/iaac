@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iaac-contract
+  namespace: default
+  labels:
+    io.kompose.service: iaac-contract
+spec:
+  replicas: 3
+  revisionHistoryLimit: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  selector:
+    matchLabels:
+      io.kompose.service: iaac-contract
+  template:
+    metadata:
+      labels:
+        io.kompose.service: iaac-contract
+        io.kompose.network/dw-network: "true"
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: iaac-contract
+          image: bljnnm/iaac-contract:20250428.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ServiceConfig__serviceDiscoveryAddress
+              value: http://consul:8500
+            - name: ServiceConfig__serviceAddress
+              value: http://iaac-contract:8080
+            - name: ServiceConfig__serviceName
+              value: iaac-contract
+            - name: ServiceConfig__serviceId
+              value: "1"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iaac-contract
+  namespace: default
+  labels:
+    io.kompose.service: iaac-contract
+spec:
+  type: ClusterIP
+  selector:
+    io.kompose.service: iaac-contract
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
