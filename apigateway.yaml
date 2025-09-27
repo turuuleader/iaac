@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apigateway
+  namespace: default
+  labels:
+    io.kompose.service: apigateway
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      io.kompose.service: apigateway
+  template:
+    metadata:
+      labels:
+        io.kompose.service: apigateway
+        io.kompose.network/dw-network: "true"
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: apigateway
+          image: foxchin/green-gate:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ServiceConfig__serviceDiscoveryAddress
+              value: http://consul:8500
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+          resources:
+            requests:
+              cpu: 500m
+            limits:
+              cpu: "2"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apigateway
+  namespace: default
+  labels:
+    io.kompose.service: apigateway
+spec:
+  type: ClusterIP
+  selector:
+    io.kompose.service: apigateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
