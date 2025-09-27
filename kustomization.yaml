@@ -4,4 +4,5 @@ resources:
   - iaac-contract.yaml
   - iaac-service.yaml
   - iaacweb.yaml
+  - svc-iaacweb.yaml
   - ingress-iaac.yaml
